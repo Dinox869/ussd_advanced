@@ -2,6 +2,7 @@
 import 'dart:async';
 
 import 'package:flutter/services.dart';
+import 'package:flutter/material.dart';
 
 class UssdAdvanced {
   static const MethodChannel _channel =
@@ -30,20 +31,33 @@ class UssdAdvanced {
 
   static Future<String?> multisessionUssd(
       {required String code, int subscriptionId = 1}) async {
+        try{
+    debugPrint('********* step 1');
     var _codeItem = _CodeAndBody.fromUssdCode(code);
+    debugPrint('********* step 2');
     String response = await _channel.invokeMethod('multisessionUssd', {
           "subscriptionId": subscriptionId,
           "code": _codeItem.code
         }).catchError((e) {
+          debugPrint('********* step 3 Error $e');
           throw e;
         }) ??
         '';
 
+    debugPrint('********* step 4');
     if (_codeItem.messages != null) {
+      debugPrint('********* step 5');
       var _res = await sendMultipleMessages(_codeItem.messages!);
+      debugPrint('********* step 6');
       response += "\n$_res";
+      debugPrint('********* step 7');
     }
+    debugPrint('********* step 8 $response');
     return response;
+        }catch(e){
+          debugPrint('********* step 9 $e');
+          return 'error';
+        }
   }
 
   static Future<void> cancelSession() async {
